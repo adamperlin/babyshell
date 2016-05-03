@@ -30,18 +30,6 @@ func main() {
           fmt.Println("Scanned >>\n")
       case scanner.LESS:
           fmt.Println("Scanned <\n")
-      case scanner.RIGHTARROW:
-          fmt.Println("Scanned RIGHTARROW")
-          break
-      case scanner.LEFTARROW:
-        fmt.Println("Scanner LEFTARROW")
-        break
-      case scanner.UPARROW:
-        fmt.Println("Scanned UPARROW")
-        break
-      case scanner.DOWNARROW:
-        fmt.Println("Scanned DOWNARROW")
-        break
       }
   }
 }
