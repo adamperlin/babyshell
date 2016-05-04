@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"fmt"
 )
 
 const (
@@ -48,15 +47,6 @@ func NewScanner(r io.Reader) *Scanner {
 	return &Scanner{r: bufio.NewReader(r)}
 }
 
-//utility functions
-func isEscapeChar(ch rune) bool {
-		for _,i := range EscapeChars {
-			if i == ch{
-				return true
-			}
-		}
-		return false
-}
 func isWhitespaceNotNewline(ch rune) bool {
 	return ch == ' ' || ch == '\t'
 }
@@ -102,7 +92,6 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		return s.scanWhitespace()
 	} else if isLetter(ch) || isOtherSpecialChar(ch) {
 		s.unread()
-		fmt.Println("Scanning for identifier")
 		return s.scanIdent()
 	}
 	switch ch {

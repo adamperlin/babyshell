@@ -5,8 +5,7 @@ import (
   "errors"
   "os"
   "fmt"
-  "strings"
-  "history"
+  //"history"
 )
 type BasicCommand struct {
   Args []string

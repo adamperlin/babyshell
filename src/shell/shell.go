@@ -7,21 +7,22 @@ package shell
 import (
   "fmt"
   "shell_util"
-  "os"
   "parser"
   "shell/colors"
-)
+//  nc "github.com/rthornton128/goncurses"
+  "readline"
 
+)
 func Mainloop() {
-  p := getNewStdinParser()
   status := true
   var color string = colors.CLR_G
     for status {
-      fmt.Printf("%s>%s ",color,colors.CLR_N)
+      p := getNewLineParser(color + "> "+colors.CLR_N)
+      if p == nil {continue}
       if err, cl := p.Parse(); err != nil {
         fmt.Println(err)
         color = colors.CLR_R
-        p = getNewStdinParser()
+        p = getNewLineParser(color + "> " + colors.CLR_N)
       }else if cl == nil  {
         status = true
       }else {
@@ -31,11 +32,50 @@ func Mainloop() {
     }
 }
 //TODO: not the best solution, but it does work. Look into a better way of doing this, instead of getting a new instance every time
-func getNewStdinParser() *parser.Parser{
-   reader, err := os.Open("/dev/stdin")
-   if err != nil {
-     fmt.Println(err)
-     os.Exit(-1)
-   }
-  return parser.NewParser(reader)
+func getNewLineParser(prompt string) *parser.Parser {
+
+   reader := readline.ReadLine(prompt)
+   if reader != nil {
+   return parser.NewParser(reader)
+ }else {
+   return nil
+ }
 }
+
+/*func runWindowLoop(){
+  s, err := nc.Init()
+  if err != nil {
+    panic(err)
+  }
+  defer s.Delete()
+  defer nc.End()
+  nc.Raw(false)
+  nc.Echo(true)
+//  s.Clear()
+  s.Keypad(true)
+
+  for {
+    ch := s.GetChar()
+    switch ch {
+    case 'q': os.Exit(0)
+    case nc.KEY_LEFT:
+        y, x := s.CursorYX()
+        s.Move(y, x-1)
+        s.Refresh()
+      case nc.KEY_RIGHT:
+        y, x := s.CursorYX()
+        s.Move(y, x+1)
+        s.Refresh()
+      case nc.KEY_BACKSPACE:
+        y, x := s.CursorYX()
+        s.Move (y, x - 1)
+          err := s.DelChar()
+          if err != nil {
+            fmt.Println(err)
+          }
+        s.Refresh()
+      case nc.KEY_ENTER:
+        return
+    }
+  }
+}*/
