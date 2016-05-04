@@ -9,10 +9,10 @@ import (
   "shell_util"
   "parser"
   "shell/colors"
-//  nc "github.com/rthornton128/goncurses"
   "readline"
-
+  "history"
 )
+var historylist *history.HistoryList
 func Mainloop() {
   status := true
   var color string = colors.CLR_G
@@ -27,55 +27,21 @@ func Mainloop() {
         status = true
       }else {
         color = colors.CLR_G
-        status = shell_util.Shell_exec(cl)
+        status = shell_util.Shell_exec(cl, historylist)
       }
     }
 }
 //TODO: not the best solution, but it does work. Look into a better way of doing this, instead of getting a new instance every time
 func getNewLineParser(prompt string) *parser.Parser {
-
+  if (historylist == nil){
+    historylist = history.CreateNewHistoryInstance()
+  }
    reader := readline.ReadLine(prompt)
    if reader != nil {
+     historylist.MainList.Append(reader.String())
    return parser.NewParser(reader)
  }else {
+   historylist.MainList.Append("")
    return nil
  }
 }
-
-/*func runWindowLoop(){
-  s, err := nc.Init()
-  if err != nil {
-    panic(err)
-  }
-  defer s.Delete()
-  defer nc.End()
-  nc.Raw(false)
-  nc.Echo(true)
-//  s.Clear()
-  s.Keypad(true)
-
-  for {
-    ch := s.GetChar()
-    switch ch {
-    case 'q': os.Exit(0)
-    case nc.KEY_LEFT:
-        y, x := s.CursorYX()
-        s.Move(y, x-1)
-        s.Refresh()
-      case nc.KEY_RIGHT:
-        y, x := s.CursorYX()
-        s.Move(y, x+1)
-        s.Refresh()
-      case nc.KEY_BACKSPACE:
-        y, x := s.CursorYX()
-        s.Move (y, x - 1)
-          err := s.DelChar()
-          if err != nil {
-            fmt.Println(err)
-          }
-        s.Refresh()
-      case nc.KEY_ENTER:
-        return
-    }
-  }
-}*/

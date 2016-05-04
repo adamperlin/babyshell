@@ -5,6 +5,7 @@ import (
   "fmt"
   "os"
   "commands"
+  "history"
 )
 /*
 #include "execute.h"
@@ -17,7 +18,7 @@ int open2(char* pathname, int flags, int mode){
 }
 */
 import "C"
-func Shell_exec(cl *parser.CommandList) bool {
+func Shell_exec(cl *parser.CommandList, h *history.HistoryList) bool {
     // get stdin and stdout file descriptors
       tmpin := C.dup(0)
       tmpout := C.dup(1)
@@ -59,7 +60,7 @@ func Shell_exec(cl *parser.CommandList) bool {
         carr, cleanup := toCStringArray(cl.Commands[ i ].Args)
         defer cleanup(carr)
         if commands.IsBuiltin(cl.Commands[ i ].Args[0]) {
-          err := commands.BuiltinExec(cl.Commands[ i ])
+          err := commands.BuiltinExec(cl.Commands[ i ], h)
           if err != nil {
             fmt.Println(err)
           }
