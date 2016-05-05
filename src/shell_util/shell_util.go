@@ -65,7 +65,7 @@ func Shell_exec(cl *parser.CommandList, h *history.HistoryList) bool {
             fmt.Println(err)
           }
         }else {
-        pid = C.process_launch(&carr[ 0 ])
+          pid = C.process_launch(&carr[ 0 ])
         }
       }
   C.dup2(tmpin, 0)

@@ -19,12 +19,9 @@ const (
 	PIPE
 	IDENT
 	NEWLINE
-	LEFTARROW
-	RIGHTARROW
-	UPARROW
-	DOWNARROW
+
 )
- var ReservedChars []rune = []rune{
+ var ReservedChars []rune = []rune{ //characters that are researved for some commands/command arguments
 	'+',
 	'"',
 	'\'',
@@ -34,6 +31,7 @@ const (
 	'.',
 	'*',
 	'-',
+	':',
 }
 
 var eof = rune(0) //represents standard EOF
@@ -163,6 +161,5 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 		}
 	}
 	str := buff.String()
-
 	return IDENT, str
 }
