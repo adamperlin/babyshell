@@ -22,7 +22,8 @@ func Mainloop() {
       if err, cl := p.Parse(); err != nil {
         fmt.Println(err)
         color = colors.CLR_R
-        p = getNewLineParser(color + "> " + colors.CLR_N)
+        continue
+      
       }else if cl == nil  {
         status = true
       }else {
@@ -37,10 +38,11 @@ func getNewLineParser(prompt string) *parser.Parser {
     historylist = history.CreateNewHistoryInstance()
   }
    reader := readline.ReadLine(prompt)
-   if reader != nil {
+   str := reader.String()
+   if str != "" || str != "\n"{
      historylist.MainList.Append(reader.String())
    return parser.NewParser(reader)
- }else {
+   }else {
    historylist.MainList.Append("")
    return nil
  }

@@ -19,19 +19,19 @@ const (
 	PIPE
 	IDENT
 	NEWLINE
-
+	QUOTE
 )
- var ReservedChars []rune = []rune{ //characters that are researved for some commands/command arguments
+
+var ReservedChars []rune = []rune{ //characters that are researved for some commands/command arguments
 	'+',
 	'"',
-	'\'',
-	'\'',
 	'$',
 	'/',
 	'.',
 	'*',
 	'-',
 	':',
+	'_',
 }
 
 var eof = rune(0) //represents standard EOF
@@ -67,7 +67,7 @@ func isLetter(ch rune) bool {
 func isDigit(ch rune) bool {
 	return (ch >= '1' && ch <= '9')
 }
-func isOtherSpecialChar(ch rune) bool{
+func isOtherSpecialChar(ch rune) bool {
 	for _, elem := range ReservedChars {
 		if ch == elem {
 			return true
@@ -98,7 +98,7 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	case eof:
 		return EOF, ""
 	case '\n':
-		return NEWLINE,string(ch)
+		return NEWLINE, string(ch)
 	case '|':
 		return PIPE, string(ch)
 	case '<':
@@ -107,11 +107,13 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		return s.switchGreat()
 	case '&':
 		return s.switchAmpersand()
+	case '\'':
+		return QUOTE, string(ch)
 	}
 	return ILLEGAL, string(ch)
 }
 
-func (s *Scanner) switchGreat()(Token,string){
+func (s *Scanner) switchGreat() (Token, string) {
 	nextch := s.read()
 	switch nextch {
 	case '>':
@@ -123,10 +125,10 @@ func (s *Scanner) switchGreat()(Token,string){
 	return GREAT, ">"
 }
 
-func (s *Scanner) switchAmpersand()(Token, string){
+func (s *Scanner) switchAmpersand() (Token, string) {
 	nextch := s.read()
 	switch nextch {
-		case '>':
+	case '>':
 		return AMPERSANDGREAT, "&>"
 	}
 	s.unread()

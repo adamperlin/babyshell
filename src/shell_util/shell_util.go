@@ -35,7 +35,9 @@ func Shell_exec(cl *parser.CommandList, h *history.HistoryList) bool {
       }else {
         in_f = C.dup(tmpin)
       }
+
       for i := range cl.Commands {
+      //  fmt.Println("current command is", *cl.Commands[i])
         C.dup2(in_f, 0)
         C.close(in_f)
         if i == len(cl.Commands) - 1 { //last command
@@ -72,6 +74,7 @@ func Shell_exec(cl *parser.CommandList, h *history.HistoryList) bool {
   C.dup2(tmpout, 1)
   C.close(tmpin)
   C.close(tmpout)
+
   if !cl.Background {
     err := C.waitfor(pid)
     if err == 1 {

@@ -50,7 +50,6 @@ func (p *Parser) scanIgnoreWhitespace()(tok scanner.Token, lit string){
   return
 }
 func (p *Parser) Parse() (error, *CommandList) {
-
   var isScanningForArgs bool
   cl := &CommandList{}
   var currentcommand *BasicCommand = new(BasicCommand)
@@ -117,26 +116,15 @@ func (p *Parser) Parse() (error, *CommandList) {
       return err, nil
     case scanner.AMPERSAND:
       tok, lit = p.scanIgnoreWhitespace()
-      if tok != scanner.NEWLINE {
-        err := fmt.Errorf("Error: & must be placed at the end of a line")
+      if tok != scanner.NEWLINE  {
+        err := fmt.Errorf("Error: '&' must be placed at the end of a line")
         p.unscan()
         return err, nil
       }else {
         cl.Background = true
-        return nil, cl
+        p.unscan()
+        break
       }
-      break
     }
   }
 }
-/*func (c *CommandList) Stringify() string {
-  ret := []string{}
-  for i, p := range c.Commands{
-    temp := strings.Join(p.Args," ")
-    ret = append(ret, temp)
-    if i > 0 {
-       ret = append (ret, " | ")
-    }
-  }
-  return strings.Join(ret, "")
-}*/

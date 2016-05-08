@@ -3,25 +3,38 @@ import (
   "os"
   "fmt"
   "parser"
-  "strings"
   "errors"
   "history"
 )
 type Builtin struct {
   Name string
-  Handler func(interface{}) error
+  Handler func([]string, interface{}) error
 }
-func Cd(dir interface{})error {
-  home := os.Getenv("HOME")
-  strdir, ok := dir.(string)
-  if  !ok {
-    return errors.New("-sh: error: cd must be given a string as an argument")
+
+func Set(args []string, other interface{}) error {
+  if args == nil {
+    //output list of set shell variables
+  }else if len(args) < 2 {
+      //make new entry
+  }else {
+    //varname = args [0], data = args[1]
   }
-  if strdir == "" || strdir == "~" {
+  return nil
+}
+
+func Cd(args []string, other interface{})error {
+  home := os.Getenv("HOME")
+  var dir string
+  if args == nil {
+    dir = ""
+  }else {
+    dir = args[0]
+  }
+  if dir == "" || dir == "~" {
     os.Chdir(home)
     return nil
   }else {
-    err := os.Chdir(strdir)
+    err := os.Chdir(dir)
     if err != nil{
       return err
     }
@@ -29,18 +42,19 @@ func Cd(dir interface{})error {
   }
 }
 
-func Exit(code interface{}) error {
+func Exit(args []string, other interface{}) error {
   os.Exit(0)
   return nil
 }
-func Help(c interface{}) error {
+func Help(args []string, other interface{}) error {
   fmt.Println("Welcome to Shell")
   fmt.Println("This is a simple Command line interpreter. Input commands in order to run them.")
-  fmt.Println("Refer to man pages for more information")
+  fmt.Println("Standard shell operations, such as pipes, io redirection, and backgrounding are supported, using '>', '<', '|', and '&'.")
+  fmt.Println("Refer to man pages for more information about specific commands.")
   return nil
 }
 
-func History(p interface{}) error {
+func History(args []string, p interface{}) error {
   history, ok := p.(*history.HistoryList)
   if !ok {
     return errors.New("Wrong value given to History")
@@ -68,22 +82,21 @@ func IsBuiltin(bin string) bool {
   }
   return false
 }
-
-func BuiltinExec(cl *parser.BasicCommand, h *history.HistoryList) error{
+func BuiltinExec(cl *parser.BasicCommand, h *history.HistoryList) error {
   for _, b := range Builtins {
+    var args []string
     if cl.Args[0] == b.Name {
+      if len(cl.Args) > 1 {
+        args = cl.Args[1:]
+      }else {
+        args = nil
+      }
       switch b.Name {
         case "history":
-          return b.Handler(h)
+          return b.Handler(args, h)
       }
-      var args string
-      if len(cl.Args) < 2 {
-        args = ""
-      }else {
-        args = strings.Join(cl.Args[1:], " ")
-      }
-      return b.Handler(args)
+      return b.Handler(args, nil)
     }
   }
-return errors.New("-sh: builtin not found")
+  return errors.New("-sh: builtin not found")
 }
