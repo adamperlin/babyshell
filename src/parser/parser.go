@@ -55,29 +55,24 @@ func(p *Parser) scanIgnoreWhitespace()(tok scanner.Token, lit string){
 func(p *Parser) parseString()(error, string){
   var buff bytes.Buffer
   _, litquote := p.scanIgnoreWhitespace()
-  fmt.Println("litquote is ", litquote)
-  buff.WriteString(litquote)
+  //buff.WriteString(litquote)
   parsingString := true
   for parsingString {
     tok, lit := p.s.Scan()
-    fmt.Println("lit is", lit)
     switch tok {
         case scanner.ESCAPEDLIT:
             char := strings.Replace(lit, "\\", "", -1)
               buff.WriteString(char)
         break
       case scanner.QUOTE:
-        fmt.Println("found quote")
         if (lit) == litquote {
           parsingString = false
-          buff.WriteString(lit)
           return nil, buff.String()
         }else {
           err := fmt.Errorf("Error: unescaped quote literal")
           return err, ""
         }
       default:
-        fmt.Println("writing contents")
         buff.WriteString(lit)
         break
     }
@@ -172,7 +167,6 @@ func(p *Parser) Parse() (error, *CommandList) {
         return err, nil
       }else {
         currentcommand.Args = append(currentcommand.Args, str)
-      //  os.Exit(1)
       }
       break
     }
