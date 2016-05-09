@@ -5,7 +5,8 @@ import (
   "errors"
   "os"
   "fmt"
-  //"history"
+  "bytes"
+  "strings"
 )
 type BasicCommand struct {
   Args []string
@@ -33,6 +34,7 @@ func NewParser(r io.Reader) *Parser {
 }
 func (p *Parser) scan()(tok scanner.Token, lit string) {
   if p.buf.n != 0 {
+    p.buf.n = 0
     return p.buf.tok, p.buf.lit
   }
   tok,  lit = p.s.Scan()
@@ -42,14 +44,52 @@ func (p *Parser) scan()(tok scanner.Token, lit string) {
 
 func (p *Parser) unscan(){p.buf.n = 1}
 
-func (p *Parser) scanIgnoreWhitespace()(tok scanner.Token, lit string){
+func(p *Parser) scanIgnoreWhitespace()(tok scanner.Token, lit string){
   tok, lit = p.scan()
   if tok == scanner.WS {
     tok,lit = p.scan()
   }
   return
 }
-func (p *Parser) Parse() (error, *CommandList) {
+
+func(p *Parser) parseString()(error, string){
+  var buff bytes.Buffer
+  _, litquote := p.scanIgnoreWhitespace()
+  fmt.Println("litquote is ", litquote)
+  buff.WriteString(litquote)
+  parsingString := true
+  for parsingString {
+    tok, lit := p.s.Scan()
+    fmt.Println("lit is", lit)
+    switch tok {
+        case scanner.ESCAPEDLIT:
+            char := strings.Replace(lit, "\\", "", -1)
+              buff.WriteString(char)
+        break
+      case scanner.QUOTE:
+        fmt.Println("found quote")
+        if (lit) == litquote {
+          parsingString = false
+          buff.WriteString(lit)
+          return nil, buff.String()
+        }else {
+          err := fmt.Errorf("Error: unescaped quote literal")
+          return err, ""
+        }
+      default:
+        fmt.Println("writing contents")
+        buff.WriteString(lit)
+        break
+    }
+  }
+  ret := func(s string) string{
+    return strings.Replace(s,"\n","", -1)
+  }(buff.String())
+  return nil, ret
+}
+
+
+func(p *Parser) Parse() (error, *CommandList) {
   var isScanningForArgs bool
   cl := &CommandList{}
   var currentcommand *BasicCommand = new(BasicCommand)
@@ -125,6 +165,16 @@ func (p *Parser) Parse() (error, *CommandList) {
         p.unscan()
         break
       }
+    case scanner.QUOTE:
+      p.unscan()
+      err, str := p.parseString()
+      if err != nil {
+        return err, nil
+      }else {
+        currentcommand.Args = append(currentcommand.Args, str)
+      //  os.Exit(1)
+      }
+      break
     }
   }
 }

@@ -3,6 +3,7 @@ import (
   "unsafe"
  //"io"
  "bytes"
+ "fmt"
  )
 /*
 #include "readln.h"
@@ -17,7 +18,8 @@ func ReadLine(prompt string) *bytes.Buffer{
   ret := C.GoString(str)
   b := bytes.NewBufferString(ret)
   if b != nil {
-  b.WriteRune('\n')
+    b.WriteRune('\n')
   }
+  fmt.Println(b.String())
   return b
 }

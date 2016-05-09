@@ -20,11 +20,12 @@ const (
 	IDENT
 	NEWLINE
 	QUOTE
+	STRING
+	ESCAPEDLIT
 )
 
 var ReservedChars []rune = []rune{ //characters that are researved for some commands/command arguments
 	'+',
-	'"',
 	'$',
 	'/',
 	'.',
@@ -109,6 +110,10 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		return s.switchAmpersand()
 	case '\'':
 		return QUOTE, string(ch)
+	case '"':
+		return QUOTE, string(ch)
+	case '\\':
+		return s.scanEscape()
 	}
 	return ILLEGAL, string(ch)
 }
@@ -164,4 +169,17 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 	}
 	str := buff.String()
 	return IDENT, str
+}
+
+func (s *Scanner) scanEscape()(Token, string){
+	ch := s.read()
+	switch ch {
+	case '"':
+		return ESCAPEDLIT, string(ch)
+	case '\\':
+		return ESCAPEDLIT, string(ch)
+	case '\'':
+		return ESCAPEDLIT, string(ch)
+	}
+	return ILLEGAL, string(ch)
 }

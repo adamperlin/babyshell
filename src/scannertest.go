@@ -30,6 +30,14 @@ func main() {
           fmt.Println("Scanned >>\n")
       case scanner.LESS:
           fmt.Println("Scanned <\n")
+	case scanner.ESCAPEDLIT:
+	  fmt.Println("Scanned ", ident)
+	case scanner.QUOTE:
+		fmt.Println("Scanned \" or ' ")
+	case scanner.ILLEGAL:
+		fmt.Println("Scanned unknown token ", ident)
+	case scanner.WS:
+		fmt.Println("Scanned space")
       }
   }
 }
