@@ -83,7 +83,24 @@ func(p *Parser) parseString()(error, string){
   return nil, ret
 }
 
+func(p *Parser) parseStderrRedirect()(error, string){
+  tok, lit := p.scanIgnoreWhitespace()
+  if tok != scanner.IDENT {
+    err := fmt.Errorf("Error: Expected file to redirect stderr to, found %s", lit)
+    return err, ""
+  }
+  return nil, lit
+}
 
+func(p *Parser) parseStdoutRedirect()(error, string) {
+  tok,lit := p.scanIgnoreWhitespace()
+  if tok != scanner.IDENT  {
+    err := fmt.Errorf("Expected file name, got %q", lit)
+    p.unscan()
+    return err, ""
+  }
+    return nil,lit
+}
 func(p *Parser) Parse() (error, *CommandList) {
   var isScanningForArgs bool
   cl := &CommandList{}
@@ -120,15 +137,13 @@ func(p *Parser) Parse() (error, *CommandList) {
       isScanningForArgs = false
       break
     case scanner.GREAT:
-      tok,lit = p.scanIgnoreWhitespace()
-      if tok == scanner.IDENT {
-        cl.Out = lit
-        break
-      }else  {
-        err := fmt.Errorf("Expected file name, got %q", lit)
-        p.unscan()
+      err, filename := p.parseStdoutRedirect()
+      if err != nil {
         return err, nil
+      }else {
+        cl.Out = filename
       }
+      break
     case scanner.LESS:
       tok,lit = p.scanIgnoreWhitespace()
       if tok == scanner.IDENT {
@@ -167,6 +182,22 @@ func(p *Parser) Parse() (error, *CommandList) {
         return err, nil
       }else {
         currentcommand.Args = append(currentcommand.Args, str)
+      }
+      break
+    case scanner.AMPERSANDGREAT:
+      err, filename := p.parseStderrRedirect()
+      if err != nil {
+        return err, nil
+      }else {
+        cl.Err = filename
+      }
+    case scanner.GREATGREAT:
+      err, filename := p.parseStderrRedirect()
+      if err != nil {
+        return err, nil
+      }else {
+        cl.Err = filename
+        cl.Io_redirect_mode = "O_APPEND"
       }
       break
     }
